@@ -4,18 +4,20 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-type typedWrapper[T comparable] interface {
+type typedWrapper[T any] interface {
 	IsPresent() bool
 	IsNull() bool
 	IsMissing() bool
 	MustGet() T
 }
 
-func assertTypedWrapperConstructors[T comparable, W typedWrapper[T]](
+func assertTypedWrapperConstructors[T any, W typedWrapper[T]](
 	t *testing.T,
 	present W,
 	presentFromPointer W,
@@ -49,7 +51,7 @@ func assertTypedWrapperConstructors[T comparable, W typedWrapper[T]](
 	assert.False(t, missing.IsNull())
 }
 
-func assertTypedWrapperJSONRoundTrip[T comparable, W typedWrapper[T]](t *testing.T, original W, wantJSON string, want T) {
+func assertTypedWrapperJSONRoundTrip[T any, W typedWrapper[T]](t *testing.T, original W, wantJSON string, want T) {
 	t.Helper()
 
 	data, err := json.Marshal(original)
@@ -62,7 +64,7 @@ func assertTypedWrapperJSONRoundTrip[T comparable, W typedWrapper[T]](t *testing
 	assert.Equal(t, want, restored.MustGet())
 }
 
-func assertTypedWrapperJSONNull[T comparable, W typedWrapper[T]](t *testing.T, original W) {
+func assertTypedWrapperJSONNull[T any, W typedWrapper[T]](t *testing.T, original W) {
 	t.Helper()
 
 	data, err := json.Marshal(original)
@@ -166,6 +168,18 @@ func TestTypedWrappers_Constructors(t *testing.T) {
 		value := "hello"
 		assertTypedWrapperConstructors(t, OfString(value), OfNullableString(&value), NullString(), OfNullableString(nil), MissingString(), value)
 	})
+
+	t.Run("uuid", func(t *testing.T) {
+		t.Parallel()
+		value := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
+		assertTypedWrapperConstructors(t, OfUUID(value), OfNullableUUID(&value), NullUUID(), OfNullableUUID(nil), MissingUUID(), value)
+	})
+
+	t.Run("decimal", func(t *testing.T) {
+		t.Parallel()
+		value := decimal.RequireFromString("123.45")
+		assertTypedWrapperConstructors(t, OfDecimal(value), OfNullableDecimal(&value), NullDecimal(), OfNullableDecimal(nil), MissingDecimal(), value)
+	})
 }
 
 func TestTypedWrappers_JSON(t *testing.T) {
@@ -259,5 +273,19 @@ func TestTypedWrappers_JSON(t *testing.T) {
 		t.Parallel()
 		assertTypedWrapperJSONRoundTrip(t, OfString("hello"), `"hello"`, "hello")
 		assertTypedWrapperJSONNull(t, NullString())
+	})
+
+	t.Run("uuid", func(t *testing.T) {
+		t.Parallel()
+		value := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
+		assertTypedWrapperJSONRoundTrip(t, OfUUID(value), `"550e8400-e29b-41d4-a716-446655440000"`, value)
+		assertTypedWrapperJSONNull(t, NullUUID())
+	})
+
+	t.Run("decimal", func(t *testing.T) {
+		t.Parallel()
+		value := decimal.RequireFromString("123.45")
+		assertTypedWrapperJSONRoundTrip(t, OfDecimal(value), `"123.45"`, value)
+		assertTypedWrapperJSONNull(t, NullDecimal())
 	})
 }

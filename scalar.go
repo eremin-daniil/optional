@@ -1,5 +1,10 @@
 package optional
 
+import (
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
+)
+
 type Bool struct {
 	Field[bool]
 }
@@ -298,4 +303,44 @@ func NullString() String {
 
 func MissingString() String {
 	return String{Field: Missing[string]()}
+}
+
+type UUID struct {
+	Field[uuid.UUID]
+}
+
+func OfUUID(value uuid.UUID) UUID {
+	return UUID{Field: Of[uuid.UUID](value)}
+}
+
+func OfNullableUUID(ptr *uuid.UUID) UUID {
+	return UUID{Field: OfNullable[uuid.UUID](ptr)}
+}
+
+func NullUUID() UUID {
+	return UUID{Field: Null[uuid.UUID]()}
+}
+
+func MissingUUID() UUID {
+	return UUID{Field: Missing[uuid.UUID]()}
+}
+
+type Decimal struct {
+	Field[decimal.Decimal]
+}
+
+func OfDecimal(value decimal.Decimal) Decimal {
+	return Decimal{Field: Of[decimal.Decimal](value)}
+}
+
+func OfNullableDecimal(ptr *decimal.Decimal) Decimal {
+	return Decimal{Field: OfNullable[decimal.Decimal](ptr)}
+}
+
+func NullDecimal() Decimal {
+	return Decimal{Field: Null[decimal.Decimal]()}
+}
+
+func MissingDecimal() Decimal {
+	return Decimal{Field: Missing[decimal.Decimal]()}
 }

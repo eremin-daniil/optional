@@ -6,6 +6,8 @@ import (
 	"fmt"
 )
 
+var nullBytes = []byte("null")
+
 type Field[T any] struct {
 	value T
 	state state
@@ -74,7 +76,7 @@ func (f Field[T]) MarshalJSON() ([]byte, error) {
 	case stateMissing:
 		return nil, fmt.Errorf("optional: missing value (did you forget omitzero?)")
 	case stateNull:
-		return []byte("null"), nil
+		return nullBytes, nil
 	case statePresent:
 		return json.Marshal(f.value)
 	default:
@@ -85,7 +87,7 @@ func (f Field[T]) MarshalJSON() ([]byte, error) {
 var _ json.Unmarshaler = &Field[int]{}
 
 func (f *Field[T]) UnmarshalJSON(data []byte) error {
-	if bytes.Equal(data, []byte("null")) {
+	if bytes.Equal(data, nullBytes) {
 		*f = Field[T]{state: stateNull}
 		return nil
 	}

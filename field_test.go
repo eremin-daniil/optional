@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -243,6 +245,20 @@ func TestField_MarshalJSON(t *testing.T) {
 		assert.JSONEq(t, `{"x":1}`, string(data))
 	})
 
+	t.Run("present uuid", func(t *testing.T) {
+		t.Parallel()
+		data, err := json.Marshal(Of(uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")))
+		require.NoError(t, err)
+		assert.JSONEq(t, `"550e8400-e29b-41d4-a716-446655440000"`, string(data))
+	})
+
+	t.Run("present decimal", func(t *testing.T) {
+		t.Parallel()
+		data, err := json.Marshal(Of(decimal.RequireFromString("123.45")))
+		require.NoError(t, err)
+		assert.JSONEq(t, `"123.45"`, string(data))
+	})
+
 	t.Run("null produces null", func(t *testing.T) {
 		t.Parallel()
 		data, err := json.Marshal(Null[int]())
@@ -312,6 +328,22 @@ func TestField_UnmarshalJSON(t *testing.T) {
 		assert.Equal(t, "world", f.MustGet())
 	})
 
+	t.Run("present uuid", func(t *testing.T) {
+		t.Parallel()
+		var f Field[uuid.UUID]
+		require.NoError(t, json.Unmarshal([]byte(`"550e8400-e29b-41d4-a716-446655440000"`), &f))
+		assert.True(t, f.IsPresent())
+		assert.Equal(t, uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"), f.MustGet())
+	})
+
+	t.Run("present decimal", func(t *testing.T) {
+		t.Parallel()
+		var f Field[decimal.Decimal]
+		require.NoError(t, json.Unmarshal([]byte(`"123.45"`), &f))
+		assert.True(t, f.IsPresent())
+		assert.Equal(t, decimal.RequireFromString("123.45"), f.MustGet())
+	})
+
 	t.Run("null sets stateNull", func(t *testing.T) {
 		t.Parallel()
 		var f Field[int]
@@ -324,6 +356,20 @@ func TestField_UnmarshalJSON(t *testing.T) {
 		t.Parallel()
 		var f Field[int]
 		err := json.Unmarshal([]byte(`"not_a_number"`), &f)
+		assert.Error(t, err)
+	})
+
+	t.Run("invalid uuid returns error", func(t *testing.T) {
+		t.Parallel()
+		var f Field[uuid.UUID]
+		err := json.Unmarshal([]byte(`"not-a-uuid"`), &f)
+		assert.Error(t, err)
+	})
+
+	t.Run("invalid decimal returns error", func(t *testing.T) {
+		t.Parallel()
+		var f Field[decimal.Decimal]
+		err := json.Unmarshal([]byte(`"not-a-decimal"`), &f)
 		assert.Error(t, err)
 	})
 }
