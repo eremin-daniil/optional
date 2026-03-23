@@ -1,6 +1,7 @@
 package optional
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"testing"
 	"time"
@@ -484,9 +485,92 @@ func TestField_JSON_RoundTrip(t *testing.T) {
 	})
 }
 
+func TestField_Value(t *testing.T) {
+	t.Parallel()
+
+	t.Run("present int", func(t *testing.T) {
+		t.Parallel()
+		got, err := Of(42).Value()
+		require.NoError(t, err)
+		assert.Equal(t, 42, got)
+	})
+
+	t.Run("present string", func(t *testing.T) {
+		t.Parallel()
+		got, err := Of("hello").Value()
+		require.NoError(t, err)
+		assert.Equal(t, "hello", got)
+	})
+
+	t.Run("present bool", func(t *testing.T) {
+		t.Parallel()
+		got, err := Of(true).Value()
+		require.NoError(t, err)
+		assert.Equal(t, true, got)
+	})
+
+	t.Run("present zero value", func(t *testing.T) {
+		t.Parallel()
+		got, err := Of(0).Value()
+		require.NoError(t, err)
+		assert.Equal(t, 0, got)
+	})
+
+	t.Run("present uuid", func(t *testing.T) {
+		t.Parallel()
+		want := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
+		got, err := Of(want).Value()
+		require.NoError(t, err)
+		assert.Equal(t, want, got)
+	})
+
+	t.Run("present decimal", func(t *testing.T) {
+		t.Parallel()
+		want := decimal.RequireFromString("123.45")
+		got, err := Of(want).Value()
+		require.NoError(t, err)
+		assert.Equal(t, want, got)
+	})
+
+	t.Run("present time", func(t *testing.T) {
+		t.Parallel()
+		want := time.Date(2024, time.January, 2, 3, 4, 5, 123456789, time.UTC)
+		got, err := Of(want).Value()
+		require.NoError(t, err)
+
+		gotTime, ok := got.(time.Time)
+		require.True(t, ok)
+		assert.True(t, gotTime.Equal(want))
+	})
+
+	t.Run("null returns nil", func(t *testing.T) {
+		t.Parallel()
+		got, err := Null[int]().Value()
+		require.NoError(t, err)
+		assert.Nil(t, got)
+	})
+
+	t.Run("missing returns error", func(t *testing.T) {
+		t.Parallel()
+		got, err := Missing[int]().Value()
+		require.Error(t, err)
+		assert.Nil(t, got)
+		assert.Contains(t, err.Error(), "missing value cannot be used in SQL")
+	})
+
+	t.Run("unknown state returns error", func(t *testing.T) {
+		t.Parallel()
+		got, err := Field[int]{state: state(255)}.Value()
+		require.Error(t, err)
+		assert.Nil(t, got)
+		assert.Contains(t, err.Error(), "unknown state")
+	})
+}
+
 func TestField_ImplementsJSONInterfaces(t *testing.T) {
 	t.Parallel()
 
 	var _ json.Marshaler = Field[int]{}
 	var _ json.Unmarshaler = &Field[int]{}
+	var _ driver.Valuer = Field[int]{}
 }

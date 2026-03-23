@@ -2,6 +2,7 @@ package optional
 
 import (
 	"bytes"
+	"database/sql/driver"
 	"encoding/json"
 	"fmt"
 )
@@ -99,4 +100,19 @@ func (f *Field[T]) UnmarshalJSON(data []byte) error {
 
 	*f = Field[T]{value: v, state: statePresent}
 	return nil
+}
+
+var _ driver.Valuer = Field[int]{}
+
+func (f Field[T]) Value() (driver.Value, error) {
+	switch f.state {
+	case stateMissing:
+		return nil, fmt.Errorf("optional: missing value cannot be used in SQL")
+	case stateNull:
+		return nil, nil
+	case statePresent:
+		return f.value, nil
+	default:
+		return nil, fmt.Errorf("optional: unknown state %v", f.state)
+	}
 }
