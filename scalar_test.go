@@ -3,6 +3,7 @@ package optional
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -180,6 +181,12 @@ func TestTypedWrappers_Constructors(t *testing.T) {
 		value := decimal.RequireFromString("123.45")
 		assertTypedWrapperConstructors(t, OfDecimal(value), OfNullableDecimal(&value), NullDecimal(), OfNullableDecimal(nil), MissingDecimal(), value)
 	})
+
+	t.Run("time", func(t *testing.T) {
+		t.Parallel()
+		value := time.Date(2024, time.January, 2, 3, 4, 5, 123456789, time.UTC)
+		assertTypedWrapperConstructors(t, OfTime(value), OfNullableTime(&value), NullTime(), OfNullableTime(nil), MissingTime(), value)
+	})
 }
 
 func TestTypedWrappers_JSON(t *testing.T) {
@@ -287,5 +294,21 @@ func TestTypedWrappers_JSON(t *testing.T) {
 		value := decimal.RequireFromString("123.45")
 		assertTypedWrapperJSONRoundTrip(t, OfDecimal(value), `"123.45"`, value)
 		assertTypedWrapperJSONNull(t, NullDecimal())
+	})
+
+	t.Run("time", func(t *testing.T) {
+		t.Parallel()
+		value := time.Date(2024, time.January, 2, 3, 4, 5, 123456789, time.UTC)
+
+		data, err := json.Marshal(OfTime(value))
+		require.NoError(t, err)
+		assert.JSONEq(t, `"2024-01-02T03:04:05.123456789Z"`, string(data))
+
+		var restored Time
+		require.NoError(t, json.Unmarshal(data, &restored))
+		assert.True(t, restored.IsPresent())
+		assert.True(t, restored.MustGet().Equal(value))
+
+		assertTypedWrapperJSONNull(t, NullTime())
 	})
 }

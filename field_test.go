@@ -3,6 +3,7 @@ package optional
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -259,6 +260,14 @@ func TestField_MarshalJSON(t *testing.T) {
 		assert.JSONEq(t, `"123.45"`, string(data))
 	})
 
+	t.Run("present time", func(t *testing.T) {
+		t.Parallel()
+		value := time.Date(2024, time.January, 2, 3, 4, 5, 123456789, time.UTC)
+		data, err := json.Marshal(Of(value))
+		require.NoError(t, err)
+		assert.JSONEq(t, `"2024-01-02T03:04:05.123456789Z"`, string(data))
+	})
+
 	t.Run("null produces null", func(t *testing.T) {
 		t.Parallel()
 		data, err := json.Marshal(Null[int]())
@@ -344,6 +353,15 @@ func TestField_UnmarshalJSON(t *testing.T) {
 		assert.Equal(t, decimal.RequireFromString("123.45"), f.MustGet())
 	})
 
+	t.Run("present time", func(t *testing.T) {
+		t.Parallel()
+		var f Field[time.Time]
+		want := time.Date(2024, time.January, 2, 3, 4, 5, 123456789, time.UTC)
+		require.NoError(t, json.Unmarshal([]byte(`"2024-01-02T03:04:05.123456789Z"`), &f))
+		assert.True(t, f.IsPresent())
+		assert.True(t, f.MustGet().Equal(want))
+	})
+
 	t.Run("null sets stateNull", func(t *testing.T) {
 		t.Parallel()
 		var f Field[int]
@@ -370,6 +388,13 @@ func TestField_UnmarshalJSON(t *testing.T) {
 		t.Parallel()
 		var f Field[decimal.Decimal]
 		err := json.Unmarshal([]byte(`"not-a-decimal"`), &f)
+		assert.Error(t, err)
+	})
+
+	t.Run("invalid time returns error", func(t *testing.T) {
+		t.Parallel()
+		var f Field[time.Time]
+		err := json.Unmarshal([]byte(`"not-a-time"`), &f)
 		assert.Error(t, err)
 	})
 }

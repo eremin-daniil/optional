@@ -1,6 +1,8 @@
 package optional
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
@@ -343,4 +345,24 @@ func NullDecimal() Decimal {
 
 func MissingDecimal() Decimal {
 	return Decimal{Field: Missing[decimal.Decimal]()}
+}
+
+type Time struct {
+	Field[time.Time]
+}
+
+func OfTime(value time.Time) Time {
+	return Time{Field: Of[time.Time](value)}
+}
+
+func OfNullableTime(ptr *time.Time) Time {
+	return Time{Field: OfNullable[time.Time](ptr)}
+}
+
+func NullTime() Time {
+	return Time{Field: Null[time.Time]()}
+}
+
+func MissingTime() Time {
+	return Time{Field: Missing[time.Time]()}
 }
