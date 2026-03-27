@@ -83,109 +83,109 @@ func TestTypedWrappers_Constructors(t *testing.T) {
 	t.Run("bool", func(t *testing.T) {
 		t.Parallel()
 		value := true
-		assertTypedWrapperConstructors(t, OfBool(value), OfNullableBool(&value), NullBool(), OfNullableBool(nil), MissingBool(), value)
+		assertTypedWrapperConstructors(t, OfBool(value), FromBoolPtr(&value), NullBool(), FromBoolPtr(nil), MissingBool(), value)
 	})
 
 	t.Run("int", func(t *testing.T) {
 		t.Parallel()
 		value := 42
-		assertTypedWrapperConstructors(t, OfInt(value), OfNullableInt(&value), NullInt(), OfNullableInt(nil), MissingInt(), value)
+		assertTypedWrapperConstructors(t, OfInt(value), FromIntPtr(&value), NullInt(), FromIntPtr(nil), MissingInt(), value)
 	})
 
 	t.Run("int8", func(t *testing.T) {
 		t.Parallel()
 		value := int8(8)
-		assertTypedWrapperConstructors(t, OfInt8(value), OfNullableInt8(&value), NullInt8(), OfNullableInt8(nil), MissingInt8(), value)
+		assertTypedWrapperConstructors(t, OfInt8(value), FromInt8Ptr(&value), NullInt8(), FromInt8Ptr(nil), MissingInt8(), value)
 	})
 
 	t.Run("int16", func(t *testing.T) {
 		t.Parallel()
 		value := int16(16)
-		assertTypedWrapperConstructors(t, OfInt16(value), OfNullableInt16(&value), NullInt16(), OfNullableInt16(nil), MissingInt16(), value)
+		assertTypedWrapperConstructors(t, OfInt16(value), FromInt16Ptr(&value), NullInt16(), FromInt16Ptr(nil), MissingInt16(), value)
 	})
 
 	t.Run("int32", func(t *testing.T) {
 		t.Parallel()
 		value := int32(32)
-		assertTypedWrapperConstructors(t, OfInt32(value), OfNullableInt32(&value), NullInt32(), OfNullableInt32(nil), MissingInt32(), value)
+		assertTypedWrapperConstructors(t, OfInt32(value), FromInt32Ptr(&value), NullInt32(), FromInt32Ptr(nil), MissingInt32(), value)
 	})
 
 	t.Run("int64", func(t *testing.T) {
 		t.Parallel()
 		value := int64(64)
-		assertTypedWrapperConstructors(t, OfInt64(value), OfNullableInt64(&value), NullInt64(), OfNullableInt64(nil), MissingInt64(), value)
+		assertTypedWrapperConstructors(t, OfInt64(value), FromInt64Ptr(&value), NullInt64(), FromInt64Ptr(nil), MissingInt64(), value)
 	})
 
 	t.Run("uint", func(t *testing.T) {
 		t.Parallel()
 		value := uint(42)
-		assertTypedWrapperConstructors(t, OfUint(value), OfNullableUint(&value), NullUint(), OfNullableUint(nil), MissingUint(), value)
+		assertTypedWrapperConstructors(t, OfUint(value), FromUintPtr(&value), NullUint(), FromUintPtr(nil), MissingUint(), value)
 	})
 
 	t.Run("uint8", func(t *testing.T) {
 		t.Parallel()
 		value := uint8(8)
-		assertTypedWrapperConstructors(t, OfUint8(value), OfNullableUint8(&value), NullUint8(), OfNullableUint8(nil), MissingUint8(), value)
+		assertTypedWrapperConstructors(t, OfUint8(value), FromUint8Ptr(&value), NullUint8(), FromUint8Ptr(nil), MissingUint8(), value)
 	})
 
 	t.Run("uint16", func(t *testing.T) {
 		t.Parallel()
 		value := uint16(16)
-		assertTypedWrapperConstructors(t, OfUint16(value), OfNullableUint16(&value), NullUint16(), OfNullableUint16(nil), MissingUint16(), value)
+		assertTypedWrapperConstructors(t, OfUint16(value), FromUint16Ptr(&value), NullUint16(), FromUint16Ptr(nil), MissingUint16(), value)
 	})
 
 	t.Run("uint32", func(t *testing.T) {
 		t.Parallel()
 		value := uint32(32)
-		assertTypedWrapperConstructors(t, OfUint32(value), OfNullableUint32(&value), NullUint32(), OfNullableUint32(nil), MissingUint32(), value)
+		assertTypedWrapperConstructors(t, OfUint32(value), FromUint32Ptr(&value), NullUint32(), FromUint32Ptr(nil), MissingUint32(), value)
 	})
 
 	t.Run("uint64", func(t *testing.T) {
 		t.Parallel()
 		value := uint64(64)
-		assertTypedWrapperConstructors(t, OfUint64(value), OfNullableUint64(&value), NullUint64(), OfNullableUint64(nil), MissingUint64(), value)
+		assertTypedWrapperConstructors(t, OfUint64(value), FromUint64Ptr(&value), NullUint64(), FromUint64Ptr(nil), MissingUint64(), value)
 	})
 
 	t.Run("uintptr", func(t *testing.T) {
 		t.Parallel()
 		value := uintptr(123)
-		assertTypedWrapperConstructors(t, OfUintptr(value), OfNullableUintptr(&value), NullUintptr(), OfNullableUintptr(nil), MissingUintptr(), value)
+		assertTypedWrapperConstructors(t, OfUintptr(value), FromUintptrPtr(&value), NullUintptr(), FromUintptrPtr(nil), MissingUintptr(), value)
 	})
 
 	t.Run("float32", func(t *testing.T) {
 		t.Parallel()
 		value := float32(3.25)
-		assertTypedWrapperConstructors(t, OfFloat32(value), OfNullableFloat32(&value), NullFloat32(), OfNullableFloat32(nil), MissingFloat32(), value)
+		assertTypedWrapperConstructors(t, OfFloat32(value), FromFloat32Ptr(&value), NullFloat32(), FromFloat32Ptr(nil), MissingFloat32(), value)
 	})
 
 	t.Run("float64", func(t *testing.T) {
 		t.Parallel()
 		value := 6.5
-		assertTypedWrapperConstructors(t, OfFloat64(value), OfNullableFloat64(&value), NullFloat64(), OfNullableFloat64(nil), MissingFloat64(), value)
+		assertTypedWrapperConstructors(t, OfFloat64(value), FromFloat64Ptr(&value), NullFloat64(), FromFloat64Ptr(nil), MissingFloat64(), value)
 	})
 
 	t.Run("string", func(t *testing.T) {
 		t.Parallel()
 		value := "hello"
-		assertTypedWrapperConstructors(t, OfString(value), OfNullableString(&value), NullString(), OfNullableString(nil), MissingString(), value)
+		assertTypedWrapperConstructors(t, OfString(value), FromStringPtr(&value), NullString(), FromStringPtr(nil), MissingString(), value)
 	})
 
 	t.Run("uuid", func(t *testing.T) {
 		t.Parallel()
 		value := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-		assertTypedWrapperConstructors(t, OfUUID(value), OfNullableUUID(&value), NullUUID(), OfNullableUUID(nil), MissingUUID(), value)
+		assertTypedWrapperConstructors(t, OfUUID(value), FromUUIDPtr(&value), NullUUID(), FromUUIDPtr(nil), MissingUUID(), value)
 	})
 
 	t.Run("decimal", func(t *testing.T) {
 		t.Parallel()
 		value := decimal.RequireFromString("123.45")
-		assertTypedWrapperConstructors(t, OfDecimal(value), OfNullableDecimal(&value), NullDecimal(), OfNullableDecimal(nil), MissingDecimal(), value)
+		assertTypedWrapperConstructors(t, OfDecimal(value), FromDecimalPtr(&value), NullDecimal(), FromDecimalPtr(nil), MissingDecimal(), value)
 	})
 
 	t.Run("time", func(t *testing.T) {
 		t.Parallel()
 		value := time.Date(2024, time.January, 2, 3, 4, 5, 123456789, time.UTC)
-		assertTypedWrapperConstructors(t, OfTime(value), OfNullableTime(&value), NullTime(), OfNullableTime(nil), MissingTime(), value)
+		assertTypedWrapperConstructors(t, OfTime(value), FromTimePtr(&value), NullTime(), FromTimePtr(nil), MissingTime(), value)
 	})
 }
 

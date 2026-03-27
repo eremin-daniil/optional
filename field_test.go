@@ -58,13 +58,13 @@ func TestOf(t *testing.T) {
 	})
 }
 
-func TestOfNullable(t *testing.T) {
+func TestFromPtr(t *testing.T) {
 	t.Parallel()
 
 	t.Run("non-nil pointer", func(t *testing.T) {
 		t.Parallel()
 		v := 42
-		f := OfNullable(&v)
+		f := FromPtr(&v)
 		assert.True(t, f.IsPresent())
 		assert.False(t, f.IsNull())
 		got, ok := f.Get()
@@ -74,7 +74,7 @@ func TestOfNullable(t *testing.T) {
 
 	t.Run("nil pointer", func(t *testing.T) {
 		t.Parallel()
-		f := OfNullable[int](nil)
+		f := FromPtr[int](nil)
 		assert.True(t, f.IsNull())
 		assert.False(t, f.IsPresent())
 		assert.False(t, f.IsMissing())
@@ -83,10 +83,28 @@ func TestOfNullable(t *testing.T) {
 	t.Run("does not alias source pointer", func(t *testing.T) {
 		t.Parallel()
 		v := 1
-		f := OfNullable(&v)
+		f := FromPtr(&v)
 		v = 2
 		got, _ := f.Get()
 		assert.Equal(t, 1, got, "value should be copied, not aliased")
+	})
+}
+
+func TestOfNullable(t *testing.T) {
+	t.Parallel()
+
+	t.Run("non-nil pointer", func(t *testing.T) {
+		t.Parallel()
+		v := 42
+		f := OfNullable(&v)
+		assert.True(t, f.IsPresent())
+		assert.Equal(t, 42, f.MustGet())
+	})
+
+	t.Run("nil pointer", func(t *testing.T) {
+		t.Parallel()
+		f := OfNullable[int](nil)
+		assert.True(t, f.IsNull())
 	})
 }
 
@@ -151,24 +169,24 @@ func TestField_GetOr(t *testing.T) {
 	})
 }
 
-func TestField_GetOrNil(t *testing.T) {
+func TestField_Ptr(t *testing.T) {
 	t.Parallel()
 
 	t.Run("present returns pointer to value", func(t *testing.T) {
 		t.Parallel()
-		ptr := Of(7).GetOrNil()
+		ptr := Of(7).Ptr()
 		require.NotNil(t, ptr)
 		assert.Equal(t, 7, *ptr)
 	})
 
 	t.Run("null returns nil", func(t *testing.T) {
 		t.Parallel()
-		assert.Nil(t, Null[int]().GetOrNil())
+		assert.Nil(t, Null[int]().Ptr())
 	})
 
 	t.Run("missing returns nil", func(t *testing.T) {
 		t.Parallel()
-		assert.Nil(t, Missing[int]().GetOrNil())
+		assert.Nil(t, Missing[int]().Ptr())
 	})
 }
 
@@ -367,6 +385,14 @@ func TestField_UnmarshalJSON(t *testing.T) {
 		t.Parallel()
 		var f Field[int]
 		require.NoError(t, json.Unmarshal([]byte("null"), &f))
+		assert.True(t, f.IsNull())
+		assert.False(t, f.IsPresent())
+	})
+
+	t.Run("null with surrounding whitespace sets stateNull", func(t *testing.T) {
+		t.Parallel()
+		var f Field[int]
+		require.NoError(t, json.Unmarshal([]byte(" \n\t null \r\n "), &f))
 		assert.True(t, f.IsNull())
 		assert.False(t, f.IsPresent())
 	})
